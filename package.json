@@ -10,7 +10,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:easycomments.easycomments"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -19,7 +19,38 @@
         "command": "easycomments.easycomments",
         "title": "EasyComments"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Easy Comments configuration",
+      "properties": {
+        "easycomments.multilineComments": {
+          "type": "boolean",
+          "description": "Configuration for multiline comments",
+          "default": true
+        },
+        "easycomments.tags": {
+          "type": "array",
+          "description": "Tags which are used to color the comments. Changes require a restart of VS Code to take effect",
+          "default": [
+            {
+              "tag": "!"
+            },
+            {
+              "tag": "?"
+            },
+            {
+              "tag": "//"
+            },
+            {
+              "tag": "todo"
+            },
+            {
+              "tag": "*"
+            }
+          ]
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -43,6 +74,9 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
-    "humanize-string": "^3.0.0"
+    "humanize-string": "^3.0.0",
+    "json5": "^2.2.1",
+    "onigasm": "^2.2.5",
+    "vscode-textmate": "^7.0.3"
   }
 }

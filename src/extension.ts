@@ -1,30 +1,96 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below 
-import {commands,window, env, ExtensionContext} from 'vscode';
+import { commands, window, env, ExtensionContext, TextEditor, extensions, workspace } from 'vscode';
 import { registerHover } from './actions/hover';
+import { Configuration } from './configuration/configuration';
 import { canTranslateLanguage, filterLanguages } from './functions/filterLanguages';
+import { registerHighlight } from './functions/highlightFunctions';
+import { Parser } from './interfaces/Parser';
+import { Comment } from './syntax/Comment';
 
 export let canLanguages = ["plaintext"];
-export let userLanguage:string; 
+export let userLanguage: string;
 
-export async function activate(context: ExtensionContext) { 
+export let comment: Comment;
+export async function activate(context: ExtensionContext) {
 
-	let disposable = commands.registerCommand('easycomments.easycomments', () => { 
+
+	let activeEditor: TextEditor;
+	let configuration: Configuration = new Configuration();
+	let parser: Parser = new Parser(configuration);
+
+	let extractComments = function () {
+		if (!activeEditor) { return; };
+ 
+		if (!parser.supportedLanguage) { return; };
+
+		parser.storeSingleLineComments(activeEditor);
+	};
+
+
+	let disposable = commands.registerCommand('easycomments.easycomments', () => {
 		window.showInformationMessage('EasyComments Started');
 	});
 
-	// filter for languages the extension can Translate
-	let grammarExtensions = filterLanguages(context); 
-	let canTranslateLanguages = canTranslateLanguage(grammarExtensions,canLanguages);
-	
-	// get the user's environment language
-	userLanguage = env.language;
+	// // filter for languages the extension can Translate
+	// let grammarExtensions = filterLanguages(context);
+	// let canTranslateLanguages = canTranslateLanguage(grammarExtensions, canLanguages);
+
+	// // get the user's environment language
+	// userLanguage = env.language;
 
 	// register actions: hover, highlight && all commands
-	registerHover(context,canTranslateLanguages);
+	// registerHover(context, canTranslateLanguages);
+	// registerHighlight(context);
 
-	context.subscriptions.push(disposable);
+	context.subscriptions.push(disposable, comment);
+
+	// Get the active editor for the first time and initialise the regex
+	if (window.activeTextEditor) {
+		activeEditor = window.activeTextEditor;
+
+		await parser.setRegex(activeEditor.document.languageId);
+		// Trigger first update of decorators
+		triggerExtractComments();
+	}
+
+	// * Handle extensions being added or removed
+	extensions.onDidChange(() => {
+		configuration.UpdateLanguagesDefinitions();
+	}, null, context.subscriptions);
+
+	// * Handle active file changed
+	window.onDidChangeActiveTextEditor(async editor => {
+		if (editor) {
+			activeEditor = editor;
+
+
+			// Trigger update to set decorations for newly active file
+			triggerExtractComments();
+		}
+	}, null, context.subscriptions);
+
+	// * Handle file contents changed
+	workspace.onDidChangeTextDocument(event => {
+
+		// Trigger updates if the text was changed in the same document
+		if (activeEditor && event.document === activeEditor.document) {
+			triggerExtractComments();
+		}
+	}, null, context.subscriptions);
+
+
+
+
+	var timeout: NodeJS.Timer;
+
+	function triggerExtractComments() {
+		if (timeout) {
+			clearTimeout(timeout);
+		}
+		timeout = setTimeout(extractComments, 100);
+	}
 }
 
 // This method is called when extension is deactivated
-export function deactivate() {}
+export function deactivate() { }

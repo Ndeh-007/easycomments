@@ -1,4 +1,4 @@
-import { Range } from "vscode";
+import { Range, TextLine } from "vscode";
 
 export interface TranslationBlock{
     originalText: string,
@@ -56,4 +56,35 @@ export interface ITranslatedText {
 	translatedText: string;
 	humanizeText?: string;
 	translateLink: string;
+}
+
+export interface IAcceptedLines{
+    acceptedLines:TextLine[];
+    entireRange: Range;
+}
+export interface Contributions {
+    multilineComments: boolean;
+    useJSDocStyle: boolean;
+    highlightPlainText: boolean;
+    tags: [{
+        tag: string;
+        // color: string;
+        // strikethrough: boolean;
+        // underline: boolean;
+        // bold: boolean;
+        // italic: boolean;
+        // backgroundColor: string;
+    }];
+}
+
+export interface CommentTag {
+    tag: string;
+    escapedTag: string;
+    decoration: any;
+    ranges: Array<any>;
+}
+
+export interface CommentConfig {
+    lineComment?: string;
+    blockComment?: [string, string];
 }

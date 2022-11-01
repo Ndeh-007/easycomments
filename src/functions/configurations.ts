@@ -5,8 +5,7 @@ const PREFIXCONFIG = 'easycomments';
 export function getConfiguration() {
     return workspace.getConfiguration(PREFIXCONFIG);
 }
-
-
+ 
 export function getConfig<T>(key: string, defaultValue?:T):T | undefined;
 export function getConfig<T>(key: string, defaultValue: T):T;
 export function getConfig<T>(key: string, defaultValue: T):T{
