@@ -20,13 +20,16 @@ export async function activate(context: ExtensionContext) {
 	let parser: Parser = new Parser(configuration);
 
 	let extractComments = function () {
-		if (!activeEditor) { return; };
- 
-		if (!parser.supportedLanguage) { return; };
+		if (!activeEditor) return;
+
+		if (!parser.supportedLanguage) return;
 
 		parser.storeSingleLineComments(activeEditor);
-	};
 
+		parser.storeBlockComments(activeEditor);
+		
+		parser.FindJSDocComments(activeEditor);
+	};
 
 	let disposable = commands.registerCommand('easycomments.easycomments', () => {
 		window.showInformationMessage('EasyComments Started');
@@ -43,9 +46,8 @@ export async function activate(context: ExtensionContext) {
 	// registerHover(context, canTranslateLanguages);
 	// registerHighlight(context);
 
-	context.subscriptions.push(disposable, comment);
 
-	// Get the active editor for the first time and initialise the regex
+	// Get the active editor for the first time and initialize the regex
 	if (window.activeTextEditor) {
 		activeEditor = window.activeTextEditor;
 
@@ -63,7 +65,9 @@ export async function activate(context: ExtensionContext) {
 	window.onDidChangeActiveTextEditor(async editor => {
 		if (editor) {
 			activeEditor = editor;
-
+ 
+			// Set regex for updated language
+			await parser.setRegex(editor.document.languageId);
 
 			// Trigger update to set decorations for newly active file
 			triggerExtractComments();
@@ -90,6 +94,9 @@ export async function activate(context: ExtensionContext) {
 		}
 		timeout = setTimeout(extractComments, 100);
 	}
+
+	
+	context.subscriptions.push(disposable, comment);
 }
 
 // This method is called when extension is deactivated

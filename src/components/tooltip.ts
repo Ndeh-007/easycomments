@@ -18,7 +18,7 @@ export async function tooltip(document: TextDocument, position: Position, token:
     header.isTrusted = true; 
     // let range = getRange(document,position);
     let _range = document.lineAt(1).range;
-    let parser = new Parser();
+    // let parser = new Parser();
     // let result = parser.extractComments(document);
      
 

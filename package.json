@@ -28,6 +28,11 @@
           "description": "Configuration for multiline comments",
           "default": true
         },
+        "better-comments.highlightPlainText": {
+            "type": "boolean",
+            "description": "Whether the plaintext comment highlighter should be active",
+            "default": false
+        },
         "easycomments.tags": {
           "type": "array",
           "description": "Tags which are used to color the comments. Changes require a restart of VS Code to take effect",

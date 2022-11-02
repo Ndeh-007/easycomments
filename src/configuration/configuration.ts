@@ -28,13 +28,13 @@ export class Configuration {
 
             if (packageJSON.contributes && packageJSON.contributes.languages) {
                 for (let language of packageJSON.contributes.languages) {
-                    if (language.configuration) { 
+                    if (language.configuration) {
                         let configPath = path.join(extension.extensionPath, language.configuration);
                         this.languageConfigFiles.set(language.id, configPath);
                     }
                 }
             }
-        } 
+        }
     }
 
     /**
@@ -43,7 +43,6 @@ export class Configuration {
      * @returns 
      */
     public async getCommentConfiguration(languageCode: string): Promise<CommentConfig | undefined> {
-        console.log(languageCode);
 
         // * check if the language config has already been loaded
         if (this.commentConfig.has(languageCode)) {
@@ -51,7 +50,7 @@ export class Configuration {
         }
 
         // * if no config exists for this language, back out and leave the language unsupported
-        if (!this.languageConfigFiles.has(languageCode)) { 
+        if (!this.languageConfigFiles.has(languageCode)) {
             return undefined;
         }
 
@@ -67,7 +66,7 @@ export class Configuration {
             this.commentConfig.set(languageCode, config.comments);
 
             return config.comments;
-        } catch (error) { 
+        } catch (error) {
             this.commentConfig.set(languageCode, undefined);
             return undefined;
         }

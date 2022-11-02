@@ -79,12 +79,17 @@ export interface Contributions {
 
 export interface CommentTag {
     tag: string;
-    escapedTag: string;
-    decoration: any;
+    escapedTag: string; 
     ranges: Array<any>;
 }
 
 export interface CommentConfig {
     lineComment?: string;
     blockComment?: [string, string];
+}
+
+export interface Comment{
+    type: "single" |"jsdoc"|"block",
+    text: string,
+    range: Range;
 }
