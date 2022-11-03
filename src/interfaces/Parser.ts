@@ -1,6 +1,15 @@
-import { DecorationRenderOptions, Range, TextDocument, TextEditor, workspace } from "vscode";
+import {
+    DecorationRenderOptions,
+    Memento,
+    Range,
+    TextDocument,
+    TextEditor,
+    workspace,
+} from "vscode";
+import { LocalStorageService } from "../components/storage";
 import { Configuration } from "../configuration/configuration";
-import { CommentTag, Contributions } from "./interfaces";
+import { filterComments } from "../functions/filterComments";
+import { CommentItem, CommentTag, Contributions, StorageItem } from "./interfaces";
 
 export class Parser {
     private tags: CommentTag[] = [];
@@ -17,15 +26,15 @@ export class Parser {
     private highlightJSDoc = false;
     private storage: any;
 
-    private contributions: Contributions = workspace.getConfiguration('easycomments') as any;
-
+    private contributions: Contributions = workspace.getConfiguration(
+        "easycomments"
+    ) as any;
 
     // * this is used to prevent the first line of the file (specifically python) from coloring like other comments
     private ignoreFirstLine = false;
 
     // * this is used to trigger the events when a supported language code is found
     public supportedLanguage = true;
-
 
     private configuration: Configuration;
 
@@ -34,35 +43,29 @@ export class Parser {
         this.setTags();
     }
 
-
     private escapeRegExp(input: string): string {
-        return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+        return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
     }
-
 
     private setCommentFormat(
         singleLine: string | string[] | null,
         start: string | null = null,
-        end: string | null = null): void {
-
+        end: string | null = null
+    ): void {
         this.delimiter = "";
         this.blockCommentStart = "";
         this.blockCommentEnd = "";
 
         // If no single line comment delimiter is passed, single line comments are not supported
         if (singleLine) {
-            if (typeof singleLine === 'string') {
-                this.delimiter = this.escapeRegExp(singleLine).replace(/\//ig, "\\/");
-            }
-            else if (singleLine.length > 0) {
+            if (typeof singleLine === "string") {
+                this.delimiter = this.escapeRegExp(singleLine).replace(/\//gi, "\\/");
+            } else if (singleLine.length > 0) {
                 // * if multiple delimiters are passed, the language has more than one single line comment format
-                var delimiters = singleLine
-                    .map(s => this.escapeRegExp(s))
-                    .join("|");
+                var delimiters = singleLine.map((s) => this.escapeRegExp(s)).join("|");
                 this.delimiter = delimiters;
             }
-        }
-        else {
+        } else {
             this.highlightSingleLineComments = false;
         }
 
@@ -79,12 +82,20 @@ export class Parser {
         this.ignoreFirstLine = false;
         this.isPlainText = false;
 
-        const config = await this.configuration.getCommentConfiguration(languageCode);
+        const config = await this.configuration.getCommentConfiguration(
+            languageCode
+        );
         if (config) {
-            let blockCommentStart = config.blockComment ? config.blockComment[0] : null;
+            let blockCommentStart = config.blockComment
+                ? config.blockComment[0]
+                : null;
             let blockCommentEnd = config.blockComment ? config.blockComment[1] : null;
 
-            this.setCommentFormat(config.lineComment || blockCommentStart, blockCommentStart, blockCommentEnd);
+            this.setCommentFormat(
+                config.lineComment || blockCommentStart,
+                blockCommentStart,
+                blockCommentEnd
+            );
 
             this.supportedLanguage = true;
         }
@@ -113,47 +124,55 @@ export class Parser {
         }
     }
 
-
     // look through the current file and get all the comments and store in local storage
     public storeSingleLineComments(activeEditor: TextEditor) {
-
-        if (!this.highlightSingleLineComments) { return; }
+        if (!this.highlightSingleLineComments) {
+            return;
+        }
 
         let text = activeEditor.document.getText();
 
         // if it's plain text, we have to do mutliline regex to catch the start of the line with ^
-        let regexFlags = (this.isPlainText) ? "igm" : "ig";
+        let regexFlags = this.isPlainText ? "igm" : "ig";
         let regEx = new RegExp(this.expression, regexFlags);
         if (this.expression.length === 37) {
             let temp = this.expression;
-            temp = temp.slice(0, temp.length - 22) + "?" + temp.slice(temp.length - 22); // inject the option of comments without exclamation marks at the start of the comment
+            temp =
+                temp.slice(0, temp.length - 22) + "?" + temp.slice(temp.length - 22); // inject the option of comments without exclamation marks at the start of the comment
             regEx = new RegExp(temp, regexFlags);
         }
         let match: any;
-        while (match = regEx.exec(text)) {
+        while ((match = regEx.exec(text))) {
             let startPos = activeEditor.document.positionAt(match.index);
-            let endPos = activeEditor.document.positionAt(match.index + match[0].length);
+            let endPos = activeEditor.document.positionAt(
+                match.index + match[0].length + 1
+            );
             let range = new Range(startPos, endPos);
 
-            // Required to ignore the first line of .py files 
-            if (this.ignoreFirstLine && startPos.line === 0 && startPos.character === 0) {
+            // Required to ignore the first line of .py files
+            if (
+                this.ignoreFirstLine &&
+                startPos.line === 0 &&
+                startPos.character === 0
+            ) {
                 continue;
             }
-            // console.log(match)
+
             // Find which custom delimiter was used in order to add it to the collection
-            let matchTag = this.tags.find(item => item.tag.toLowerCase() === match[1].toLowerCase());
+            let matchTag = this.tags.find(
+                (item) => item.tag.toLowerCase() === match[1].toLowerCase()
+            );
             if (matchTag) {
                 matchTag.ranges.push(range);
-                console.log(matchTag);
-                // this.collectSingleLineComments(matchTag);
+                matchTag.range = range;
+                this.collectSingleLineComments(matchTag);
             }
         }
     }
 
     public storeBlockComments(activeEditor: TextEditor): void {
-
         // If highlight multiline is off in package.json or doesn't apply to his language, return
-        if (!this.highlightMultilineComments) return;
+        if (!this.highlightMultilineComments) { return; }
 
         let text = activeEditor.document.getText();
 
@@ -178,32 +197,46 @@ export class Parser {
         let regEx = new RegExp(regexString, "gm");
         let commentRegEx = new RegExp(commentMatchString, "igm");
 
+        if (commentMatchString.length === 63) {
+            let temp = commentMatchString;
+            temp =
+                temp.slice(0, temp.length - 11) + "/" + temp.slice(temp.length - 11); // inject the option of comments without exclamation marks at the start of the comment
+            commentRegEx = new RegExp(temp, "igm");
+        }
+
         // Find the multiline comment block
         let match: any;
-        while (match = regEx.exec(text)) {
+        while ((match = regEx.exec(text))) {
             let commentBlock = match[0];
 
             // Find the line
             let line;
-            while (line = commentRegEx.exec(commentBlock)) {
-                let startPos = activeEditor.document.positionAt(match.index + line.index + line[2].length);
-                let endPos = activeEditor.document.positionAt(match.index + line.index + line[0].length);
+            while ((line = commentRegEx.exec(commentBlock))) {
+                let startPos = activeEditor.document.positionAt(
+                    match.index + line.index + line[2].length - 1
+                );
+                let endPos = activeEditor.document.positionAt(
+                    match.index + line.index + line[0].length + 1
+                );
                 let range = new Range(startPos, endPos);
 
                 // Find which custom delimiter was used in order to add it to the collection
                 let matchString = line[3] as string;
-                let matchTag = this.tags.find(item => item.tag.toLowerCase() === matchString.toLowerCase());
+                let matchTag = this.tags.find(
+                    (item) => item.tag.toLowerCase() === matchString.toLowerCase()
+                );
 
                 if (matchTag) {
                     matchTag.ranges.push(range);
+                    this.collectBlockComments(matchTag);
                 }
             }
         }
     }
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     public FindJSDocComments(activeEditor: TextEditor): void {
-
         // If highlight multiline is off in package.json or doesn't apply to his language, return
-        if (!this.highlightMultilineComments && !this.highlightJSDoc) return;
+        if (!this.highlightMultilineComments && !this.highlightJSDoc) { return; }
 
         let text = activeEditor.document.getText();
 
@@ -220,41 +253,49 @@ export class Parser {
         commentMatchString += characters.join("|");
         commentMatchString += ")([ ]*|[:])+([^*/][^\\r\\n]*)";
 
+        commentMatchString = commentMatchString.replace("!", "!?");
+        commentMatchString = commentMatchString.replace("todo", "[todo]?");
         let commentRegEx = new RegExp(commentMatchString, "igm");
 
         // Find the multiline comment block
         let match: any;
-        while (match = regEx.exec(text)) {
+        while ((match = regEx.exec(text))) {
             let commentBlock = match[0];
 
             // Find the line
             let line;
-            while (line = commentRegEx.exec(commentBlock)) {
-                let startPos = activeEditor.document.positionAt(match.index + line.index + line[2].length);
-                let endPos = activeEditor.document.positionAt(match.index + line.index + line[0].length);
+            while ((line = commentRegEx.exec(commentBlock))) {
+                let startPos = activeEditor.document.positionAt(
+                    match.index + line.index + line[2].length - 1
+                );
+                let endPos = activeEditor.document.positionAt(
+                    match.index + line.index + line[0].length + 1
+                );
                 let range = new Range(startPos, endPos);
 
                 // Find which custom delimiter was used in order to add it to the collection
-                let matchString = line[3] as string;
-                let matchTag = this.tags.find(item => item.tag.toLowerCase() === matchString.toLowerCase());
-
+                let matchString = line[2] as string;
+                let matchTag = this.tags.find(
+                    (item) =>
+                        item.tag.toLowerCase() ===
+                        matchString.toLowerCase().replace(new RegExp(" ", "g"), "")
+                );
                 if (matchTag) {
                     matchTag.ranges.push(range);
+                    this.collectJSDocComments(matchTag);
                 }
             }
         }
     }
 
-
-
     private setTags(): void {
         let items = this.contributions.tags;
         for (let item of items) {
-            let escapedSequence = item.tag.replace(/([()[{*+.$^\\|?])/g, '\\$1');
+            let escapedSequence = item.tag.replace(/([()[{*+.$^\\|?])/g, "\\$1");
             this.tags.push({
                 tag: item.tag,
-                escapedTag: escapedSequence.replace(/\//gi, "\\/"),// ! hardcoded to escape slashes
-                ranges: []
+                escapedTag: escapedSequence.replace(/\//gi, "\\/"), // ! hardcoded to escape slashes
+                ranges: [],
             });
         }
     }
@@ -287,37 +328,54 @@ export class Parser {
     }
 
 
-    private SingleLineCommentsArray: CommentTag[] = [];
+    // =================================================================================
 
-    private collectSingleLineComments(matches: CommentTag[]) {
-        if (!matches) { return; };
 
-        // if the newly read array of values already exist, do not perform check
-        if (this.SingleLineCommentsArray.toString() === matches.toString()) { return; }
+    private singleLineCommentsArray: (CommentItem | undefined)[] = [];
+    private blockCommentsArray: (CommentItem | undefined)[] = [];
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    private JSDocCommentsArray: (CommentItem | undefined)[] = [];
+    private totalComments: (CommentItem | undefined)[] = [];
 
-        // if arrays are different, locate differences and return values
-        if (this.SingleLineCommentsArray.toString() !== matches.toString()) {
+    private collectSingleLineComments(comment: CommentTag) {
+        let filteredComments = filterComments(comment, "single");
+        this.singleLineCommentsArray = filteredComments;
+    }
 
-            let temp = this.SingleLineCommentsArray.map((comment, index) => {
-                let t;
-                if (comment.toString() !== matches[index].toString()) {
-                    t = matches[index];
-                } 
-                return t as CommentTag;
-            });
+    private collectBlockComments(comment: CommentTag) {
+        let filteredComments = filterComments(comment, "block");
+        this.blockCommentsArray = filteredComments;
+    }
 
-            if (temp) {
-                let holder = [...temp, ...this.SingleLineCommentsArray];
-                this.SingleLineCommentsArray = holder;
-            }
+    private collectJSDocComments(comment: CommentTag) {
+        let filteredComments = filterComments(comment, "block");
+        this.JSDocCommentsArray = filteredComments;
+    }
 
-        }
+    public collectData() {
+        console.log("Collected data", [
+            ...this.singleLineCommentsArray,
+            ...this.blockCommentsArray,
+            ...this.JSDocCommentsArray,
+        ]);
 
-        console.log(this.SingleLineCommentsArray);
+        this.totalComments = [...this.singleLineCommentsArray, ...this.blockCommentsArray, ...this.JSDocCommentsArray];
+    }
+
+    // make all comments available for the instance of the particular class
+    public getTotalComments() {
+        return this.totalComments;
     }
 
 
-    private collectData() {
-
+    //   Store read comments to local storage
+    public persistDataToStorage(activeEditor: TextEditor, storageManager: LocalStorageService) {
+        let key = activeEditor.document.uri.fsPath;
+        let storageData: StorageItem = {
+            data: this.totalComments,
+            editor: activeEditor,
+            uri: key,
+        };
+        storageManager.setValue<StorageItem>(key, storageData);
     }
 }

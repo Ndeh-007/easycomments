@@ -18,6 +18,10 @@
       {
         "command": "easycomments.easycomments",
         "title": "EasyComments"
+      },
+      {
+        "command": "easycomments.showHover",
+        "title": "Show Hover"
       }
     ],
     "configuration": {

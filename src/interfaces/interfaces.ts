@@ -1,8 +1,8 @@
-import { Range, TextLine } from "vscode";
+import { Range, TextEditor, TextLine } from "vscode";
 
-export interface TranslationBlock{
+export interface TranslationBlock {
     originalText: string,
-    translatedText:string,
+    translatedText: string,
 }
 
 export interface IGrammarExtensions {
@@ -19,7 +19,7 @@ export interface ITMSyntaxExtensionPoint {
     tokenTypes: TokenTypesContribution;
     injectTo: string[];
 }
- 
+
 export interface TokenTypesContribution {
     [scopeName: string]: string;
 }
@@ -34,32 +34,32 @@ export interface ITMLanguageExtensionPoint {
 }
 
 export interface ICommentBlock {
-	humanize?: boolean;
-	range: Range;
-	comment: string;
-	tokens?: ICommentToken[];
+    humanize?: boolean;
+    range: Range;
+    comment: string;
+    tokens?: ICommentToken[];
 }
 
 export interface ICommentToken {
-	ignoreStart?: number;
-	ignoreEnd?: number;
-	text: string;
-	scope: IScopeLen[];
+    ignoreStart?: number;
+    ignoreEnd?: number;
+    text: string;
+    scope: IScopeLen[];
 }
 
 interface IScopeLen {
-	scopes: string[];
-	len: number;
+    scopes: string[];
+    len: number;
 }
 
 export interface ITranslatedText {
-	translatedText: string;
-	humanizeText?: string;
-	translateLink: string;
+    translatedText: string;
+    humanizeText?: string;
+    translateLink: string;
 }
 
-export interface IAcceptedLines{
-    acceptedLines:TextLine[];
+export interface IAcceptedLines {
+    acceptedLines: TextLine[];
     entireRange: Range;
 }
 export interface Contributions {
@@ -79,8 +79,9 @@ export interface Contributions {
 
 export interface CommentTag {
     tag: string;
-    escapedTag: string; 
+    escapedTag: string;
     ranges: Array<any>;
+    range?: Range;
 }
 
 export interface CommentConfig {
@@ -88,8 +89,18 @@ export interface CommentConfig {
     blockComment?: [string, string];
 }
 
-export interface Comment{
-    type: "single" |"jsdoc"|"block",
-    text: string,
+export interface CommentItem {
+    type: string,
+    text?: string,
     range: Range;
+}
+
+export interface StorageItem {
+    editor: TextEditor;
+    uri: string;
+    data: (CommentItem | undefined)[];
+}
+export interface IGetRange {
+    result: CommentItem | undefined,
+    state: boolean
 }

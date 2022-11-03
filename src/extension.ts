@@ -1,7 +1,8 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below 
-import { commands, window, env, ExtensionContext, TextEditor, extensions, workspace } from 'vscode';
+import { commands, window, env, ExtensionContext, TextEditor, extensions, workspace, Memento } from 'vscode';
 import { registerHover } from './actions/hover';
+import { LocalStorageService } from './components/storage';
 import { Configuration } from './configuration/configuration';
 import { canTranslateLanguage, filterLanguages } from './functions/filterLanguages';
 import { registerHighlight } from './functions/highlightFunctions';
@@ -17,7 +18,8 @@ export async function activate(context: ExtensionContext) {
 
 	let activeEditor: TextEditor;
 	let configuration: Configuration = new Configuration();
-	let parser: Parser = new Parser(configuration);
+	let parser: Parser = new Parser(configuration);  
+    let storageManager = new LocalStorageService(context.globalState);
 
 	let extractComments = function () {
 		if (!activeEditor) return;
@@ -29,6 +31,10 @@ export async function activate(context: ExtensionContext) {
 		parser.storeBlockComments(activeEditor);
 		
 		parser.FindJSDocComments(activeEditor);
+
+		parser.collectData();
+
+		// parser.persistDataToStorage(activeEditor,storageManager);
 	};
 
 	let disposable = commands.registerCommand('easycomments.easycomments', () => {
@@ -42,9 +48,6 @@ export async function activate(context: ExtensionContext) {
 	// // get the user's environment language
 	// userLanguage = env.language;
 
-	// register actions: hover, highlight && all commands
-	// registerHover(context, canTranslateLanguages);
-	// registerHighlight(context);
 
 
 	// Get the active editor for the first time and initialize the regex
@@ -54,6 +57,10 @@ export async function activate(context: ExtensionContext) {
 		await parser.setRegex(activeEditor.document.languageId);
 		// Trigger first update of decorators
 		triggerExtractComments();
+
+		// register all commands, and highlights 
+		registerHover(context,activeEditor.document.languageId, parser);
+		registerHighlight(context);
 	}
 
 	// * Handle extensions being added or removed
