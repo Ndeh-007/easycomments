@@ -60,7 +60,7 @@ export async function activate(context: ExtensionContext) {
 
 		// register all commands, and highlights 
 		registerHover(context,activeEditor.document.languageId, parser);
-		registerHighlight(context);
+		// registerHighlight(context);
 	}
 
 	// * Handle extensions being added or removed

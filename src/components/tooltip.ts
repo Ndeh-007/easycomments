@@ -20,17 +20,18 @@ export async function tooltip(document: TextDocument, position: Position, token:
     let range = getRange(hoverLine, parser);
     let hoveredText = '';
 
-    if (!range.state) { return null; }
+    if (!range.state) { 
+        console.log('registered hover returning null');; return null; }
     if (range.state) {
         hoveredText = document.getText(range?.result?.range);
     }
 
-    let translationResult = await translateManager(hoveredText, "google", userLanguage);
+    let translationResult = await translateManager(hoveredText, "google", "fr");
     const translationBlock: TranslationBlock = {
         originalText: hoveredText,
-        translatedText: translationResult as string,
+        translatedText: (translationResult)?translationResult.toString():"translating...",
     };
-    let sentence =  `${translationBlock.originalText}`;
+    let sentence =  `${translationBlock.translatedText}`;
 
     let mdBody = new MarkdownString();
     mdBody.isTrusted = true;  
@@ -43,6 +44,7 @@ export async function tooltip(document: TextDocument, position: Position, token:
 
     const hover = new Hover([header, mdBody], range?.result?.range);
 
+    console.log('registered hover');
     return hover;
 }
 
@@ -56,6 +58,7 @@ function getRange(hoverLine: TextLine, parser: Parser) {
     };
     for (let i = 0; i < comments.length; i++) {
         if (comments[i]?.range.contains(hoverLine.range)) {
+            console.log("test assed")
             res.result = comments[i];
             res.state = true;
             break;

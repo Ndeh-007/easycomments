@@ -33,9 +33,9 @@
           "default": true
         },
         "better-comments.highlightPlainText": {
-            "type": "boolean",
-            "description": "Whether the plaintext comment highlighter should be active",
-            "default": false
+          "type": "boolean",
+          "description": "Whether the plaintext comment highlighter should be active",
+          "default": false
         },
         "easycomments.tags": {
           "type": "array",
@@ -83,6 +83,7 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
+    "@google-cloud/translate": "^7.0.3",
     "humanize-string": "^3.0.0",
     "json5": "^2.2.1",
     "onigasm": "^2.2.5",
