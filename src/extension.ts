@@ -8,6 +8,7 @@ import { canTranslateLanguage, filterLanguages } from './functions/filterLanguag
 import { registerHighlight } from './functions/highlightFunctions';
 import { Parser } from './interfaces/Parser';
 import { Comment } from './syntax/Comment';
+import { TranslateManager } from './translate/translateManager';
 
 export let canLanguages = ["plaintext"];
 export let userLanguage: string;
@@ -19,6 +20,10 @@ export async function activate(context: ExtensionContext) {
 	let activeEditor: TextEditor;
 	let configuration: Configuration = new Configuration();
 	let parser: Parser = new Parser(configuration);  
+	let userLanguage = env.language;
+	let translationTargetLanguages = "get them from package.json";
+	
+	let translate: TranslateManager =  new TranslateManager();
     let storageManager = new LocalStorageService(context.globalState);
 
 	let extractComments = function () {
