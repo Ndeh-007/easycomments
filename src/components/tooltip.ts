@@ -21,26 +21,30 @@ export async function tooltip(document: TextDocument, position: Position, token:
     let hoveredText = '';
 
     if (!range.state) { 
-        console.log('registered hover returning null');; return null; }
+        console.log('registered hover returning null'); return null; }
     if (range.state) {
         hoveredText = document.getText(range?.result?.range);
     }
-
-    let translationResult = await translateManager(hoveredText, "google", "fr");
+    // remove all text after the @ sign
+    const returnString:string = hoveredText.substring(hoveredText.indexOf("@"), hoveredText.length);
+    hoveredText = hoveredText.replace(/(\@(.*))/igm, "");
+    let translationResult = await translateManager(hoveredText, "deepL", "fr",range.result?.type);
     const translationBlock: TranslationBlock = {
         originalText: hoveredText,
         translatedText: (translationResult)?translationResult.toString():"translating...",
     };
+
+    // append the required characters to replicate the highlighted text
+    if(range.result?.type === 'block'){
+        let start = '/**\n';
+        let end = " " + returnString + '\n */';
+        translationBlock.translatedText = start + translationBlock.translatedText + end;
+    }
     let sentence =  `${translationBlock.translatedText}`;
-
-    let mdBody = new MarkdownString();
-    mdBody.isTrusted = true;  
-    mdBody.supportHtml= false;
-    mdBody.appendText(sentence);
-    mdBody.supportThemeIcons = true;
-
-    const tooltipBody = new MarkdownString(`${translationBlock.originalText} => ${translationBlock.translatedText}`, true);
-    tooltipBody.isTrusted = true;
+    
+    const codeDefine = '```';
+    const markDownContent = `${codeDefine}\n${sentence}\n ${codeDefine}`; 
+    let mdBody = new MarkdownString(markDownContent,true);    
 
     const hover = new Hover([header, mdBody], range?.result?.range);
 
@@ -57,8 +61,7 @@ function getRange(hoverLine: TextLine, parser: Parser) {
         result: undefined,
     };
     for (let i = 0; i < comments.length; i++) {
-        if (comments[i]?.range.contains(hoverLine.range)) {
-            console.log("test assed")
+        if (comments[i]?.range.contains(hoverLine.range)) { 
             res.result = comments[i];
             res.state = true;
             break;

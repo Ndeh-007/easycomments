@@ -22,7 +22,7 @@ export function filterComments(comment: CommentTag, commentType: string) {
             _comment = {
                 range: new Range(_start.start, _end.end),
                 type: commentType
-            };
+            }; 
             _filteredComments.push(_comment);
             _start =  _ranges[i];
             _end =  _ranges[i]; 

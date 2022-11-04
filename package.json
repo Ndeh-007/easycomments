@@ -84,6 +84,7 @@
   },
   "dependencies": {
     "@google-cloud/translate": "^7.0.3",
+    "deepl-node": "^1.7.1",
     "humanize-string": "^3.0.0",
     "json5": "^2.2.1",
     "onigasm": "^2.2.5",

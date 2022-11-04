@@ -104,3 +104,16 @@ export interface IGetRange {
     result: CommentItem | undefined,
     state: boolean
 }
+
+export interface ITranslationSource{
+    source:"google"|"deepL"|"combined";
+    url:string;
+} 
+
+
+export interface ITranslationManagerOptions{
+    content:string;
+    targetLanguage:string; 
+    source:"google"|"deepL"|"combined";
+    activeEditor:TextEditor;
+}

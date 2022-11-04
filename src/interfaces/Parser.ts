@@ -145,7 +145,7 @@ export class Parser {
         while ((match = regEx.exec(text))) {
             let startPos = activeEditor.document.positionAt(match.index);
             let endPos = activeEditor.document.positionAt(
-                match.index + match[0].length + 1
+                match.index + match[0].length 
             );
             let range = new Range(startPos, endPos);
 
@@ -213,7 +213,7 @@ export class Parser {
             let line;
             while ((line = commentRegEx.exec(commentBlock))) {
                 let startPos = activeEditor.document.positionAt(
-                    match.index + line.index + line[2].length - 1
+                    match.index + line.index + line[2].length
                 );
                 let endPos = activeEditor.document.positionAt(
                     match.index + line.index + line[0].length + 1
@@ -266,11 +266,11 @@ export class Parser {
             let line;
             while ((line = commentRegEx.exec(commentBlock))) {
                 let startPos = activeEditor.document.positionAt(
-                    match.index + line.index + line[2].length - 1
+                    match.index + line.index + line[2].length - 2
                 );
                 let endPos = activeEditor.document.positionAt(
                     match.index + line.index + line[0].length + 1
-                );
+                ); 
                 let range = new Range(startPos, endPos);
 
                 // Find which custom delimiter was used in order to add it to the collection
@@ -352,13 +352,7 @@ export class Parser {
         this.JSDocCommentsArray = filteredComments;
     }
 
-    public collectData() {
-        console.log("Collected data", [
-            ...this.singleLineCommentsArray,
-            ...this.blockCommentsArray,
-            ...this.JSDocCommentsArray,
-        ]);
-
+    public collectData() { 
         this.totalComments = [...this.singleLineCommentsArray, ...this.blockCommentsArray, ...this.JSDocCommentsArray];
     }
 
