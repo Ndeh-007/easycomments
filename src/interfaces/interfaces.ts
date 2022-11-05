@@ -117,3 +117,8 @@ export interface ITranslationManagerOptions{
     source:"google"|"deepL"|"combined";
     activeEditor:TextEditor;
 }
+
+export interface ILanguagePair{
+    language:string;
+    code:string
+}

@@ -3,100 +3,123 @@ import { GoogleTranslate } from "./GoogleTranslate";
 import * as deepl from "deepl-node";
 import { env, TextEditor } from "vscode";
 import {
-  ITranslationManagerOptions,
-  ITranslationSource,
+    ILanguagePair,
+    ITranslationManagerOptions,
+    ITranslationSource,
 } from "../interfaces/interfaces";
-
-export async function translateManager(
-  content: string,
-  translateSource: string,
-  targetLanguage: string,
-  commentType?: string
-) {
-  return content;
-
-  // first test if incoming text is block or JSDOC
-
-  // remove all instances of * and // from the comments
-  // if (commentType === "block") {
-  //     let jsDocReg = new RegExp("(\\@(.*))", "igm");
-  //     let blockCommentReg = new RegExp("((\/\/|\\*|-) )", "igm");
-  //     let blockSingleCommentReg = new RegExp("(\/\/)", 'igm');
-  //     // do not translate the @return for JSDoc type of comments
-  //     if (jsDocReg.test(content) || blockCommentReg.test(content)) {
-  //         content = content.replace(/((\/\/|\*|-) )/gim, "");
-  //         content = content.replace(/(\@(.*))/igm, "");
-  //         content = content.substring(0, content.length - 1);
-  //     }
-  // }
-  if (translateSource === "google") {
-    return await GoogleTranslate(content, targetLanguage);
-  }
-  if (translateSource === "deepL") {
-    let t: any = targetLanguage;
-    return await deepLTranslate(content, t);
-  }
-}
+import { DEEPL_LANGUAGES, LANGUAGES } from "../components/langauges";
+ 
 
 export class TranslateManager {
-  /**
-   * when extension is start for the first time, detect user language and check if it is part of target overlapping source languages
-   * if it is part of overlapping source languages, set the target language to combine else set to google.
-   *
-   * if at the first over the user's language is the same as the comment language, show option to target translation to another language and after that
-   * do not execute any other translations so as to save api calls.
-   *
-   * get translation source for settings/config file if changed
-   */
-  // the chosen source for translation
+
+    /**
+     * when extension is start for the first time, detect user language and check if it is part of target overlapping source languages
+     * if it is part of overlapping source languages, set the target language to combine else set to google.
+     *
+     * if at the first over the user's language is the same as the comment language, show option to target translation to another language and after that
+     * do not execute any other translations so as to save api calls.
+     *
+     * get translation source for settings/config file if changed
+     */
+    // the chosen source for translation
 
 
+    // Start Private Region
 
-  private translationSource!: ITranslationSource;
-  private targetLanguage: string = env.language;
-
-  public setTargetLanguage(target:string = this.targetLanguage){
-    this.targetLanguage = target;
-  }
-
-  public getTargetLanguage(){
-    return this.targetLanguage;
-  }
-
-  private setTranslationSource(
-    source: "combined" | "deepL" | "google",
-    url: string
-  ) {
-    this.translationSource = {
-      source: source,
-      url: url,
+    private translationSource: ITranslationSource = {
+        source:"google",
+        url:""
     };
-  }
+    private targetLanguage: string = env.language;
+	private overLappingLanguages:ILanguagePair[] = [];
+    private isOverlap:boolean = false;
 
-  public constructor() {
-    this.setTargetLanguage();
-  }
 
-  public async translate(content: string, targetLanguage: string) {
-    let source = this.translationSource.source;
-    if (source === "google") {
-        return "google";
-      return await GoogleTranslate(content, targetLanguage);
+    // check if the current target language exists in overlap
+    private isOverlapping(target:string, pool:ILanguagePair[]){
+         for(let i=0;i<pool.length; i++){
+            if(pool[i].code.includes(target)){
+                this.isOverlap = true;
+                break;
+            }
+        }; 
     }
-    if(source === "deepL"){
-        return "deepL";
-        let t: any = targetLanguage;
-        return await deepLTranslate(content, t);
+
+    private setOverLappingLanguages(){
+        let googleLang = LANGUAGES;
+        let deeplLang = DEEPL_LANGUAGES;
+
+        let overLap =  googleLang.text.map((lang,index)=>{ 
+            if(deeplLang.includes(lang.language))
+            {
+                return lang;
+            }
+        });
+        return overLap.filter(item=>item!==undefined);
     }
-    if(source === "combined"){
-        return "combined"
-        let result = await this.compareTranslation(content, targetLanguage);
-        return result;
-    } 
 
-  }
+    
 
-  private async compareTranslation(content: string, targetLanguage: string) {
-    return "combined results";
-  }
+    private async compareTranslation(content: string, targetLanguage: string) {
+        return "combined results "+this.targetLanguage;
+    }
+
+    // end region
+
+    // Public Region starts here 
+    public constructor(targetLanguage:string) {
+        this.setTargetLanguage(targetLanguage);
+        this.overLappingLanguages =  this.setOverLappingLanguages() as ILanguagePair[];            
+        this.isOverlapping(this.targetLanguage, this.overLappingLanguages);
+        this.setTranslationSource("combined");
+    }
+
+    public async translate(content: string) { 
+        let source = this.translationSource.source;
+        if (source === "google") {
+            return "google:"+this.targetLanguage;
+            return await GoogleTranslate(content, this.targetLanguage);
+        }
+        if (source === "deepL" && this.isOverlap) {
+            return "deepL:"+this.targetLanguage;
+            let t: any = this.targetLanguage;
+            return await deepLTranslate(content, t);
+        }
+        if (source === "combined" && this.isOverlap) {
+            return "combined + " + await this.compareTranslation(content,this.targetLanguage) ;
+            let result = await this.compareTranslation(content, this.targetLanguage);
+            return result;
+        }
+
+    }
+
+    public setTargetLanguage(target: string) {
+        this.targetLanguage = target;
+        
+        // do not force user to use combined mode
+        // when the target language is changed. after initialization of the class in the beginning
+        // if(this.overLappingLanguages.length>0){
+        //     this.isOverlapping(this.targetLanguage,this.overLappingLanguages);
+        // }
+    }
+
+    public getTargetLanguage() {
+        return this.targetLanguage;
+    }
+
+    public getTargetLanguagePair(){
+       return LANGUAGES.text.filter(item=>item.code === this.targetLanguage)[0];
+    }
+    
+    public setTranslationSource( source: "combined" | "deepL" | "google", url: string="" ) {
+        this.translationSource = {
+            source: source,
+            url: url,
+        };
+    }
+
+    public getTranslationSource(){
+        return this.translationSource;
+    }
+
 }

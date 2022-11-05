@@ -3,17 +3,18 @@ import { comment, userLanguage } from '../extension';
 import { selectionContains } from '../functions/highlightFunctions';
 import { CommentItem, IAcceptedLines, IGetRange, TranslationBlock } from '../interfaces/interfaces';
 import { Parser } from '../interfaces/Parser';
-import { translateManager } from '../translate/translateManager';
+import { TranslateManager } from '../translate/translateManager';
 import { isCode } from '../util/string';
 
 
-export async function tooltip(document: TextDocument, position: Position, token: CancellationToken, parser: Parser): Promise<Hover | null> {
-    const translationSource = "[translationSource]";
-    const translate = `[$(sync)](command:commentTranslate.changeTranslateSource "Change translate source")`;
+export async function tooltip(document: TextDocument, position: Position, token: CancellationToken, parser: Parser, translateManager:TranslateManager): Promise<Hover | null> {
+    const translationSource = `[${translateManager.getTranslationSource().source}](command:easycomments.changeTargetLanguage "Change translate source")`;
+    const targetLang = `[${translateManager.getTargetLanguagePair().language}](command:easycomments.changeTargetLanguage "Change Target Language")`;
+    // const translate = `[$(sync)](command:commentTranslate.changeTranslateSource "Change translate source")`;
     const pluginTitle = "Easy Comments";
     const space = '&nbsp;&nbsp;';
     const separator = `${space}|${space}`;
-    const header: MarkdownString = new MarkdownString(`${pluginTitle}${space}${translate}${separator}${translationSource}`, true);
+    const header: MarkdownString = new MarkdownString(`${pluginTitle}${space}${separator}${targetLang}${separator}${translationSource}`, true);
 
     header.isTrusted = true;
     let hoverLine = document.lineAt(position.line);
@@ -28,7 +29,7 @@ export async function tooltip(document: TextDocument, position: Position, token:
     // remove all text after the @ sign
     const returnString:string = hoveredText.substring(hoveredText.indexOf("@"), hoveredText.length);
     hoveredText = hoveredText.replace(/(\@(.*))/igm, "");
-    let translationResult = await translateManager(hoveredText, "deepL", "fr",range.result?.type);
+    let translationResult = await translateManager.translate(hoveredText);
     const translationBlock: TranslationBlock = {
         originalText: hoveredText,
         translatedText: (translationResult)?translationResult.toString():"translating...",
@@ -40,6 +41,7 @@ export async function tooltip(document: TextDocument, position: Position, token:
         let end = " " + returnString + '\n */';
         translationBlock.translatedText = start + translationBlock.translatedText + end;
     }
+
     let sentence =  `${translationBlock.translatedText}`;
     
     const codeDefine = '```';

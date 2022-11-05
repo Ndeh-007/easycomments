@@ -19,12 +19,10 @@ export async function activate(context: ExtensionContext) {
 
 	let activeEditor: TextEditor;
 	let configuration: Configuration = new Configuration();
-	let parser: Parser = new Parser(configuration);  
-	let userLanguage = env.language;
-	let translationTargetLanguages = "get them from package.json";
+	let parser: Parser = new Parser(configuration);   
 	
-	let translate: TranslateManager =  new TranslateManager();
-    let storageManager = new LocalStorageService(context.globalState);
+	let translateManager: TranslateManager =  new TranslateManager(env.language);
+    let storageManager = new LocalStorageService(context.globalState); 
 
 	let extractComments = function () {
 		if (!activeEditor) return;
@@ -64,7 +62,7 @@ export async function activate(context: ExtensionContext) {
 		triggerExtractComments();
 
 		// register all commands, and highlights 
-		registerHover(context,activeEditor.document.languageId, parser);
+		registerHover(context,activeEditor.document.languageId, parser ,translateManager);
 		// registerHighlight(context);
 	}
 
