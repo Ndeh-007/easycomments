@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below 
 import { commands, window, env, ExtensionContext, TextEditor, extensions, workspace, Memento } from 'vscode';
 import { registerHover } from './actions/hover';
+import { registerCommands } from './commands/commands';
 import { LocalStorageService } from './components/storage';
 import { Configuration } from './configuration/configuration';
 import { canTranslateLanguage, filterLanguages } from './functions/filterLanguages';
@@ -25,9 +26,9 @@ export async function activate(context: ExtensionContext) {
     let storageManager = new LocalStorageService(context.globalState); 
 
 	let extractComments = function () {
-		if (!activeEditor) return;
+		if (!activeEditor) {return;};
 
-		if (!parser.supportedLanguage) return;
+		if (!parser.supportedLanguage) {return;};
 
 		parser.storeSingleLineComments(activeEditor);
 
@@ -64,6 +65,11 @@ export async function activate(context: ExtensionContext) {
 		// register all commands, and highlights 
 		registerHover(context,activeEditor.document.languageId, parser ,translateManager);
 		// registerHighlight(context);
+
+		registerCommands(context, translateManager);
+
+		
+		window.showInformationMessage("extension launched");
 	}
 
 	// * Handle extensions being added or removed

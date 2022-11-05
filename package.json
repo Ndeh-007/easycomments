@@ -1,93 +1,104 @@
 {
-  "name": "easycomments",
-  "displayName": "EasyComments",
-  "description": "",
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.72.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onStartupFinished"
-  ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "easycomments.easycomments",
-        "title": "EasyComments"
-      },
-      {
-        "command": "easycomments.showHover",
-        "title": "Show Hover"
-      }
+    "name": "easycomments",
+    "displayName": "EasyComments",
+    "description": "",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.72.0"
+    },
+    "categories": [
+        "Other"
     ],
-    "configuration": {
-      "title": "Easy Comments configuration",
-      "properties": {
-        "easycomments.multilineComments": {
-          "type": "boolean",
-          "description": "Configuration for multiline comments",
-          "default": true
-        },
-        "better-comments.highlightPlainText": {
-          "type": "boolean",
-          "description": "Whether the plaintext comment highlighter should be active",
-          "default": false
-        },
-        "easycomments.tags": {
-          "type": "array",
-          "description": "Tags which are used to color the comments. Changes require a restart of VS Code to take effect",
-          "default": [
-            {
-              "tag": "!"
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [{
+                "command": "easycomments.easycomments",
+                "title": "EasyComments"
             },
             {
-              "tag": "?"
+                "command": "easycomments.showHover",
+                "title": "Show Hover"
             },
             {
-              "tag": "//"
+                "command": "easycomments.changeTranslateSource",
+                "title": "Change Translate Source"
             },
             {
-              "tag": "todo"
-            },
-            {
-              "tag": "*"
+                "command": "easycomments.changeTargetLanguage",
+                "title": "Change Target Language"
             }
-          ]
+        ],
+        "configuration": {
+            "title": "Easy Comments configuration",
+            "properties": {
+                "easycomments.multilineComments": {
+                    "type": "boolean",
+                    "description": "Configuration for multiline comments",
+                    "default": true
+                },
+                "easycomments.tags": {
+                    "type": "array",
+                    "description": "Tags which are used to color the comments. Changes require a restart of VS Code to take effect",
+                    "default": [{
+                            "tag": "!"
+                        },
+                        {
+                            "tag": "?"
+                        },
+                        {
+                            "tag": "//"
+                        },
+                        {
+                            "tag": "todo"
+                        },
+                        {
+                            "tag": "*"
+                        }
+                    ]
+                },
+                "easycomments.targetLanguage": {
+                    "description": "The target language per translation",
+                    "type": "string",
+                    "default": null
+                },
+                "easycomments.translationSource": {
+                    "description": "The source of each translation",
+                    "type": "string",
+                    "default": null
+                }
+            }
         }
-      }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/glob": "^8.0.0",
+        "@types/mocha": "^10.0.0",
+        "@types/node": "16.x",
+        "@types/vscode": "^1.72.0",
+        "@typescript-eslint/eslint-plugin": "^5.38.1",
+        "@typescript-eslint/parser": "^5.38.1",
+        "@vscode/test-electron": "^2.1.5",
+        "eslint": "^8.24.0",
+        "glob": "^8.0.3",
+        "mocha": "^10.0.0",
+        "typescript": "^4.8.4"
+    },
+    "dependencies": {
+        "@google-cloud/translate": "^7.0.3",
+        "deepl-node": "^1.7.1",
+        "humanize-string": "^3.0.0",
+        "json5": "^2.2.1",
+        "onigasm": "^2.2.5",
+        "vscode-textmate": "^7.0.3"
     }
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
-  },
-  "devDependencies": {
-    "@types/glob": "^8.0.0",
-    "@types/mocha": "^10.0.0",
-    "@types/node": "16.x",
-    "@types/vscode": "^1.72.0",
-    "@typescript-eslint/eslint-plugin": "^5.38.1",
-    "@typescript-eslint/parser": "^5.38.1",
-    "@vscode/test-electron": "^2.1.5",
-    "eslint": "^8.24.0",
-    "glob": "^8.0.3",
-    "mocha": "^10.0.0",
-    "typescript": "^4.8.4"
-  },
-  "dependencies": {
-    "@google-cloud/translate": "^7.0.3",
-    "deepl-node": "^1.7.1",
-    "humanize-string": "^3.0.0",
-    "json5": "^2.2.1",
-    "onigasm": "^2.2.5",
-    "vscode-textmate": "^7.0.3"
-  }
 }

@@ -8,8 +8,8 @@ import { isCode } from '../util/string';
 
 
 export async function tooltip(document: TextDocument, position: Position, token: CancellationToken, parser: Parser, translateManager:TranslateManager): Promise<Hover | null> {
-    const translationSource = `[${translateManager.getTranslationSource().source}](command:easycomments.changeTargetLanguage "Change translate source")`;
-    const targetLang = `[${translateManager.getTargetLanguagePair().language}](command:easycomments.changeTargetLanguage "Change Target Language")`;
+    const translationSource = `[${translateManager.getTranslationSource().source}](command:easycomments.changeTranslateSource "Change translate source")`;
+    const targetLang = `[${translateManager.getTargetLanguagePair().language}](command:easycomments.changeTargetLanguage "Change target language")`;
     // const translate = `[$(sync)](command:commentTranslate.changeTranslateSource "Change translate source")`;
     const pluginTitle = "Easy Comments";
     const space = '&nbsp;&nbsp;';
