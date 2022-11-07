@@ -14,7 +14,8 @@
     ],
     "main": "./out/extension.js",
     "contributes": {
-        "commands": [{
+        "commands": [
+            {
                 "command": "easycomments.easycomments",
                 "title": "EasyComments"
             },
@@ -42,7 +43,8 @@
                 "easycomments.tags": {
                     "type": "array",
                     "description": "Tags which are used to color the comments. Changes require a restart of VS Code to take effect",
-                    "default": [{
+                    "default": [
+                        {
                             "tag": "!"
                         },
                         {
@@ -95,6 +97,8 @@
     },
     "dependencies": {
         "@google-cloud/translate": "^7.0.3",
+        "@grammarly/sdk": "^2.1.0",
+        "axios": "^1.1.3",
         "deepl-node": "^1.7.1",
         "humanize-string": "^3.0.0",
         "json5": "^2.2.1",

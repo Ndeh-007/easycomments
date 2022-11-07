@@ -122,3 +122,9 @@ export interface ILanguagePair{
     language:string;
     code:string
 }
+
+export interface ISourceTranslatedContent{
+    google:string;
+    deepL:string;
+    targetLanguage:string;
+}

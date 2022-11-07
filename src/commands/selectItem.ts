@@ -18,7 +18,7 @@ export async function selectTranslateSource(
     {
       label: "combined",
       description:
-        "For overlapping supported languages, compare and provide the best translation between google and DeepL. ",
+        "For overlapping supported languages, compare and provide the best translation between Google and DeepL. ",
     },
   ];
 

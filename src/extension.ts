@@ -10,6 +10,7 @@ import { registerHighlight } from './functions/highlightFunctions';
 import { Parser } from './interfaces/Parser';
 import { Comment } from './syntax/Comment';
 import { TranslateManager } from './translate/translateManager';
+import * as Grammarly from "@grammarly/sdk";
 
 export let canLanguages = ["plaintext"];
 export let userLanguage: string;
@@ -20,9 +21,11 @@ export async function activate(context: ExtensionContext) {
 
 	let activeEditor: TextEditor;
 	let configuration: Configuration = new Configuration();
-	let parser: Parser = new Parser(configuration);   
+	let parser: Parser = new Parser(configuration);
+	const grammarly = await Grammarly.init("client_4zH6b3my7FAUh9ni7h6WCP");
+
 	
-	let translateManager: TranslateManager =  new TranslateManager(env.language);
+	let translateManager: TranslateManager =  new TranslateManager(env.language,grammarly);
     let storageManager = new LocalStorageService(context.globalState); 
 
 	let extractComments = function () {
