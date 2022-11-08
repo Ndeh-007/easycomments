@@ -11,14 +11,14 @@ export async function selectTranslateSource(
         "Use Google translate. Has a wider range of supported languages",
     },
     {
-      label: "deepl",
+      label: "deepL",
       description:
         "Use DeepL translate. Has a smaller range of supported languages.",
     },
     {
       label: "combined",
       description:
-        "For overlapping supported languages, compare and provide the best translation between Google and DeepL. ",
+        "For overlapping supported languages, compare and provide the best translation between Google and DeepL. Source will be set to google. ",
     },
   ];
 

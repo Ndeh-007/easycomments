@@ -21,8 +21,7 @@ export async function tooltip(document: TextDocument, position: Position, token:
     let range = getRange(hoverLine, parser);
     let hoveredText = '';
 
-    if (!range.state) { 
-        console.log('registered hover returning null'); return null; }
+    if (!range.state) {   return null; }
     if (range.state) {
         hoveredText = document.getText(range?.result?.range);
     }
@@ -32,8 +31,9 @@ export async function tooltip(document: TextDocument, position: Position, token:
     let translationResult = await translateManager.translate(hoveredText);
     const translationBlock: TranslationBlock = {
         originalText: hoveredText,
-        translatedText: (translationResult)?translationResult.toString():"translating...",
+        translatedText: (translationResult?.length !== 0)?translationResult as string:"translating...",
     };
+ 
 
     // append the required characters to replicate the highlighted text
     if(range.result?.type === 'block'){
@@ -49,8 +49,7 @@ export async function tooltip(document: TextDocument, position: Position, token:
     let mdBody = new MarkdownString(markDownContent,true);    
 
     const hover = new Hover([header, mdBody], range?.result?.range);
-
-    console.log('registered hover');
+ 
     return hover;
 }
 

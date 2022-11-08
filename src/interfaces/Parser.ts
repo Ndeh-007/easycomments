@@ -369,8 +369,7 @@ export class Parser {
   }
 
   // make all comments available for the instance of the particular class
-  public getTotalComments() {
-    console.log(this.totalComments);
+  public getTotalComments() { 
     return this.totalComments;
   }
 

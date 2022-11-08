@@ -32,10 +32,8 @@ export class Comment implements Disposable {
         const key = `${languageId}-${uri}`;
         if (this._commentParseCache.has(key)) {
             return this._commentParseCache.get(key);
-        }
-        console.log(key)
-        const grammar = await this._textMateService.createGrammar(languageId);
-console.log(grammar)
+        } 
+        const grammar = await this._textMateService.createGrammar(languageId); 
         const parse = new CommentParse(textDocument, grammar);
         this._commentParseCache.set(key, parse);
         return parse;

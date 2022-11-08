@@ -2,7 +2,7 @@ import { Range, TextEditor, TextLine } from "vscode";
 
 export interface TranslationBlock {
     originalText: string,
-    translatedText: string,
+    translatedText: string | undefined,
 }
 
 export interface IGrammarExtensions {
@@ -105,26 +105,38 @@ export interface IGetRange {
     state: boolean
 }
 
-export interface ITranslationSource{
-    source:"google"|"deepL"|"combined";
-    url:string;
-} 
-
-
-export interface ITranslationManagerOptions{
-    content:string;
-    targetLanguage:string; 
-    source:"google"|"deepL"|"combined";
-    activeEditor:TextEditor;
+export interface ITranslationSource {
+    source: "google" | "deepL" | "combined";
+    url: string;
 }
 
-export interface ILanguagePair{
-    language:string;
-    code:string
+
+export interface ITranslationManagerOptions {
+    content: string;
+    targetLanguage: string;
+    source: "google" | "deepL" | "combined";
+    activeEditor: TextEditor;
 }
 
-export interface ISourceTranslatedContent{
-    google:string;
-    deepL:string;
-    targetLanguage:string;
+export interface ILanguagePair {
+    language: string;
+    code: string
+}
+
+export interface ISourceTranslatedContent {
+    google: string;
+    deepL: string;
+    targetLanguage: string;
+}
+
+export interface ICorticalCompareMetric {
+    cosineSimilarity: number,
+    euclideanDistance: number,
+    jaccardDistance: number,
+    overlappingAll: number,
+    overlappingLeftRight: number,
+    overlappingRightLeft: number,
+    sizeLeft: number,
+    sizeRight: number,
+    weightedScoring: number,
 }
