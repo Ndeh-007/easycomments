@@ -170,7 +170,7 @@ export class TranslateManager {
 
   public setTargetLanguage(target: string) {
     this.targetLanguage = target;
-    // if the target langauge selected is not overlapping
+    // if the target language selected is not overlapping
     if(target === "combined" && this.isOverlap === false){ 
       this.translationSource.source = "google"; 
     }

@@ -140,3 +140,11 @@ export interface ICorticalCompareMetric {
     sizeRight: number,
     weightedScoring: number,
 }
+
+export interface ITranslationStorageItem{
+    sourceLanguage:string; 
+    translationSource:string | "google" | "deepL" | "combined";
+    range:Range | undefined; 
+    translationBlock:TranslationBlock;
+    id:string|undefined;
+}
