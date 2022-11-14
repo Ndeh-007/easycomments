@@ -24,17 +24,26 @@ export async function tooltip(document: TextDocument, position: Position, token:
     if (!range.state) { return null; }
 
     if (!range.result?.range) { return null; }
-
+ 
     // get hovered text from the document
     hoveredText = document.getText(range?.result?.range);
+    
+    const codeDefine = '```';
+
+    // check if the line or lines of text is code, and do not begin translation works
+    if(isCode(hoveredText)){
+        let md =  new MarkdownString(codeDefine + "\n" + hoveredText + "\n" + codeDefine);
+        md.isTrusted = true;
+        const hover = new Hover([header,md], range.result.range);
+        return hover;
+    }
 
 
     // create id for item 
     let _sourceLanguage = translateManager.getTargetLanguage();
     let _translationSource = translateManager.getTranslationSource().source;
     let _id = range.result?.range.start.character.toString() + range.result?.range.end.character.toString() + _sourceLanguage + _translationSource;
-    
-    const codeDefine = '```';
+
     
     // check if item is in storage and return translation for the exact parameters
     const itemFromStorage = storageManager.getValue<any>(_id);

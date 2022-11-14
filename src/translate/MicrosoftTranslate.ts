@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 const key = "998d11aab7e1480aa2012e453e08f9ce";

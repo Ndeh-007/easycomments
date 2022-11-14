@@ -68,7 +68,7 @@ export async function activate(context: ExtensionContext) {
 		registerCommands(context, translateManager);
 
 
-		window.showInformationMessage("extension launched");
+		window.showInformationMessage("EasyComments extension launched");
 	}
 
 	// * Handle extensions being added or removed

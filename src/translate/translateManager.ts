@@ -117,13 +117,11 @@ export class TranslateManager {
     let _deepLTargetLanguage: TargetLanguageCode = detectLanguageResult.language as any;
     if (detectLanguageResult.language === "en") {
       _deepLTargetLanguage = "en-GB";
-    }
-    // console.log("inside reverse translated, the detected langauge:",detectLanguageResult);
+    } 
     reversedValues.source.deepL = await deepLTranslate(sources.source.deepL, _deepLTargetLanguage);
     reversedValues.source.google = await GoogleTranslate(sources.source.google, detectLanguageResult.language);
     reversedValues.source.microsoft = await microsoftTranslate(sources.source.microsoft, detectLanguageResult.language);
-
-
+ 
     return reversedValues;
   }
 
