@@ -16,6 +16,11 @@ export async function selectTranslateSource(
         "Use DeepL translate. Has a smaller range of supported languages.",
     },
     {
+      label: "microsoft",
+      description:
+        "Use Microsoft translate. Wide range, supports mythical languages, e.g klingon",
+    },
+    {
       label: "combined",
       description:
         "For overlapping supported languages, compare and provide the best translation between Google and DeepL. Source will be set to google. ",

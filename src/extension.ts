@@ -7,14 +7,12 @@ import { LocalStorageService } from './components/storage';
 import { Configuration } from './configuration/configuration';
 import { canTranslateLanguage, filterLanguages } from './functions/filterLanguages';
 import { registerHighlight } from './functions/highlightFunctions';
-import { Parser } from './interfaces/Parser';
-import { Comment } from './syntax/Comment';
+import { Parser } from './interfaces/Parser'; 
 import { TranslateManager } from './translate/translateManager';
 
 export let canLanguages = ["plaintext"];
 export let userLanguage: string;
-
-export let comment: Comment;
+ 
 export async function activate(context: ExtensionContext) {
 
 
@@ -102,7 +100,6 @@ export async function activate(context: ExtensionContext) {
 
 
 
-
 	var timeout: NodeJS.Timer;
 
 	function triggerExtractComments() {
@@ -112,7 +109,7 @@ export async function activate(context: ExtensionContext) {
 		timeout = setTimeout(extractComments, 100);
 	}
 
-	context.subscriptions.push(disposable, comment, storageManager.clearStorage());
+	context.subscriptions.push(disposable, storageManager.clearStorage());
 }
 
 // This method is called when extension is deactivated

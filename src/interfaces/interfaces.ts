@@ -106,7 +106,7 @@ export interface IGetRange {
 }
 
 export interface ITranslationSource {
-    source: "google" | "deepL" | "combined";
+    source: "google" | "deepL" | "combined" | "microsoft";
     url: string;
 }
 
@@ -124,9 +124,14 @@ export interface ILanguagePair {
 }
 
 export interface ISourceTranslatedContent {
+    source:ISources
+    targetLanguage: string;
+}
+
+export interface ISources{
     google: string;
     deepL: string;
-    targetLanguage: string;
+    microsoft:string;
 }
 
 export interface ICorticalCompareMetric {

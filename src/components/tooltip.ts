@@ -1,5 +1,4 @@
-import { CancellationToken, comments, Hover, MarkdownString, Position, Range, TextDocument, TextLine } from 'vscode';
-import { comment, userLanguage } from '../extension';
+import { CancellationToken, comments, Hover, MarkdownString, Position, Range, TextDocument, TextLine } from 'vscode'; 
 import { selectionContains } from '../functions/highlightFunctions';
 import { CommentItem, IAcceptedLines, IGetRange, ITranslationStorageItem, TranslationBlock } from '../interfaces/interfaces';
 import { Parser } from '../interfaces/Parser';

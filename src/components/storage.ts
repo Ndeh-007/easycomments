@@ -12,9 +12,9 @@ export class LocalStorageService {
         this.storage.update(key, value);
     }
 
+    
     public getKeys() {
-        return this.storage.keys();
-    }
+        return this.storage.keys(); }
 
     public clearStorage() { 
         let cleanStorage: Disposable = new Disposable(() => {
