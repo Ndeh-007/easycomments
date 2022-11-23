@@ -66,7 +66,7 @@ export async function activate(context: ExtensionContext) {
 		// registerHighlight(context);
 
 		registerCommands(context, translateManager);
-
+  
 
 		window.showInformationMessage("EasyComments extension launched");
 	}
@@ -109,7 +109,7 @@ export async function activate(context: ExtensionContext) {
 		timeout = setTimeout(extractComments, 100);
 	}
 
-	context.subscriptions.push(disposable, storageManager.clearStorage());
+	context.subscriptions.push(disposable, storageManager.clearStorageDisposabe());
 }
 
 // This method is called when extension is deactivated

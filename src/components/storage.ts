@@ -1,28 +1,32 @@
 import { Disposable, Memento } from "vscode";
 
 export class LocalStorageService {
+  constructor(private storage: Memento) {}
 
-    constructor(private storage: Memento) { }
+  public getValue<T>(key: string): T | undefined {
+    return this.storage.get<T>(key);
+  }
 
-    public getValue<T>(key: string): T | undefined {
-        return this.storage.get<T>(key);
-    }
+  public setValue<T>(key: string, value: T) {
+    this.storage.update(key, value);
+  }
 
-    public setValue<T>(key: string, value: T) {
-        this.storage.update(key, value);
-    }
+  public getKeys() {
+    return this.storage.keys();
+  }
 
-    
-    public getKeys() {
-        return this.storage.keys(); }
+  public clearStorage() {
+    this.storage.keys().forEach(async (key) => {
+      await this.storage.update(key, undefined);
+    });
+  }
 
-    public clearStorage() { 
-        let cleanStorage: Disposable = new Disposable(() => {
-            this.storage.keys().forEach((key) => {
-                this.storage.update(key, undefined);
-            });
-        });
-        return cleanStorage;
-    }
-
+  public clearStorageDisposabe() {
+    let cleanStorage: Disposable = new Disposable(() => { 
+      this.storage.keys().forEach((key) => {
+        this.storage.update(key, undefined);
+      }); 
+    });
+    return cleanStorage;
+  }
 }

@@ -1,7 +1,8 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import * as json5 from 'json5';
+
+import * as json5 from 'c:/Users/Ngwa/Documents/Work/School/easycomments/node_modules/json5/lib/index'; 
 import { TextDecoder } from 'util';
 import { CommentConfig } from '../interfaces/interfaces';
 

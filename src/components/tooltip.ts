@@ -1,4 +1,4 @@
-import { CancellationToken, comments, Hover, MarkdownString, Position, Range, TextDocument, TextLine } from 'vscode'; 
+import { CancellationToken, comments, Hover, MarkdownString, Position, Range, TextDocument, TextLine, env } from 'vscode'; 
 import { selectionContains } from '../functions/highlightFunctions';
 import { CommentItem, IAcceptedLines, IGetRange, ITranslationStorageItem, TranslationBlock } from '../interfaces/interfaces';
 import { Parser } from '../interfaces/Parser';
@@ -14,7 +14,7 @@ export async function tooltip(document: TextDocument, position: Position, token:
     const pluginTitle = "Easy Comments";
     const space = '&nbsp;&nbsp;';
     const separator = `${space}|${space}`;
-    const header: MarkdownString = new MarkdownString(`${pluginTitle}${space}${separator}${targetLang}${separator}${translationSource}`, true);
+    const header: MarkdownString = new MarkdownString(`${pluginTitle}${space}${separator}${targetLang}${separator}${translationSource}`, true); 
 
     header.isTrusted = true;
     let hoverLine = document.lineAt(position.line);
@@ -43,18 +43,20 @@ export async function tooltip(document: TextDocument, position: Position, token:
     let _sourceLanguage = translateManager.getTargetLanguage();
     let _translationSource = translateManager.getTranslationSource().source;
     let _id = range.result?.range.start.character.toString() + range.result?.range.end.character.toString() + _sourceLanguage + _translationSource;
+    console.log(_id);
 
     
     // check if item is in storage and return translation for the exact parameters
+    
     const itemFromStorage = storageManager.getValue<any>(_id);
-    let storageHover:Hover = new Hover();
+    let storageHover:Hover = new Hover("");
     if (itemFromStorage) { 
         let jsonItemFromStorage: ITranslationStorageItem = JSON.parse(itemFromStorage);
         let md = new MarkdownString(codeDefine +"\n" + jsonItemFromStorage.translationBlock.translatedText +"\n" + codeDefine, true);
         md.isTrusted = true;
         const hover = new Hover([header, md], range.result.range);
         storageHover = hover;
-        console.log("file exsit, translation terminated. returning data stored from db");
+        console.log("file exist, translation terminated. returning data stored from db");
         return hover;
     } 
     console.log("file does not exist but area is in range, translation continued. returning data stored from db");
@@ -62,7 +64,14 @@ export async function tooltip(document: TextDocument, position: Position, token:
     // remove all text after the @ sign
     const returnString: string = hoveredText.substring(hoveredText.indexOf("@"), hoveredText.length);
     hoveredText = hoveredText.replace(/(\@(.*))/igm, "");
-    let translationResult = await translateManager.translate(hoveredText);
+
+    let translationResult:any = hoveredText;
+    // do not translate if the target language and the system language are the same to save api calls
+    console.log(env.language);
+    if(targetLang !== env.language){ 
+        translationResult = await translateManager.translate(hoveredText);
+    }
+
     const translationBlock: TranslationBlock = {
         originalText: hoveredText,
         translatedText: (translationResult?.length !== 0) ? translationResult as string : "translating...",
@@ -98,9 +107,9 @@ export async function tooltip(document: TextDocument, position: Position, token:
     // create hover item
     const hover = new Hover([header, mdBody], range.result.range);
 
-    if(storageHover){
-
-    }
+    // if(storageHover.contents.length > 0){
+    //     hover.contents = hover.contents.concat(storageHover.contents);
+    // }
 
     return hover;
 }
