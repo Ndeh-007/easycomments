@@ -47,13 +47,17 @@ export async function tooltip(document: TextDocument, position: Position, token:
     
     // check if item is in storage and return translation for the exact parameters
     const itemFromStorage = storageManager.getValue<any>(_id);
+    let storageHover:Hover = new Hover();
     if (itemFromStorage) { 
         let jsonItemFromStorage: ITranslationStorageItem = JSON.parse(itemFromStorage);
         let md = new MarkdownString(codeDefine +"\n" + jsonItemFromStorage.translationBlock.translatedText +"\n" + codeDefine, true);
         md.isTrusted = true;
         const hover = new Hover([header, md], range.result.range);
+        storageHover = hover;
+        console.log("file exsit, translation terminated. returning data stored from db");
         return hover;
     } 
+    console.log("file does not exist but area is in range, translation continued. returning data stored from db");
 
     // remove all text after the @ sign
     const returnString: string = hoveredText.substring(hoveredText.indexOf("@"), hoveredText.length);
@@ -93,6 +97,10 @@ export async function tooltip(document: TextDocument, position: Position, token:
 
     // create hover item
     const hover = new Hover([header, mdBody], range.result.range);
+
+    if(storageHover){
+
+    }
 
     return hover;
 }

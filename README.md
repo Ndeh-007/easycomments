@@ -20,7 +20,7 @@ The default language is set to which ever language your system is in. So if your
 
 For example if there is an image subfolder under your extension project workspace:
 
-![animated image of how to change target language and translation source](./src/assets/easycomments.gif)
+![animated image of how to change target language and translation source](./images/easycomments.gif)
 
 ## Requirements
 _```Reload Required ```_
