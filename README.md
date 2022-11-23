@@ -1,71 +1,45 @@
-# easycomments README
+# EasyComments
 
-This is the README for your extension "easycomments". After writing up a brief description, we recommend including the following sections.
+In a bid to solve the issues the natural language barrier posses to a group of developers, EasyComments translates comments written in one language(e.g chinese) to another language (e.g French) so that people can work together or you can now clone the code of Japanese and understand the developers thought patterns by reading his comments written in Japanese.
 
+
+EasyComments uses 3 translation services to provide the best translation for the user.
+* `Google Translate`: Wide range of languages. Uses Neural Machine translation
+* `Deepl`: Small range of languages, but offers better translation for certain languages. Uses Artificial Neural Machine Translation
+* `Microsoft's Translator`: Larger range than DeepL, but smaller than google. Offers translation for fictional languages, e.g klingon. Uses Statistical and Neural Machine translation.
+
+EasyComments the compares the results of these translations and returns the best translation to the user. This translation is done with [`Cortical.io`](https://www.cortical.io/).  
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+To translate a comment, `Hover` over the comment.
+
+The default language is set to which ever language your system is in. So if your computer's language is in English, it will translate English (the language in which the comment is in) to English(the target language, which happens to be your computer's default language). To change this, you can either: 
+* Press ctrl+shift+p to open the command palate and enter “change target language” and choose a language of your choice.
+* Or when you hover, click on the language and choose your desired language
+
 
 For example if there is an image subfolder under your extension project workspace:
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+![animated image of how to change target language and translation source](./images/easycomments.gif)
 
 ## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+_```Reload Required ```_
+When you install, you will have to reload you environment.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+This extension will work only for languages whose comments support the same commenting structure as javascript
+That is:
+* `//` for single line
+* `/* */` for multiline comments
+* `/** */` for multiline JSDoc Comments.
 
+The extension does not currently properly handle JSDoc comments.
 ## Release Notes
-
-Users appreciate release notes as you update your extension.
 
 ### 1.0.0
 
-Initial release of ...
+Initial release of EasyComments
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
+  
 **Enjoy!**

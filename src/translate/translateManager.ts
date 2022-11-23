@@ -13,6 +13,7 @@ import { DEEPL_LANGUAGES, LANGUAGES } from "../components/langauges";
 import { TargetLanguageCode } from "deepl-node";
 import { DetectResult } from "@google-cloud/translate/build/src/v2";
 import { scoreTranslation } from "./ScoreTranslations";
+import { microsoftTranslate } from "./MicrosoftTranslate";
 
 
 
@@ -62,6 +63,7 @@ export class TranslateManager {
   }
 
   private async compareTranslation(content: string, targetLanguage: string) {
+
     //first get the respective translations from their sources
     let google = await GoogleTranslate(content, targetLanguage);
     let _deepLTargetLanguage: TargetLanguageCode = targetLanguage as any;
@@ -69,11 +71,15 @@ export class TranslateManager {
       _deepLTargetLanguage = "en-GB";
     }
     let deepL = await deepLTranslate(content, _deepLTargetLanguage);
+    let microsoft = await microsoftTranslate(content, targetLanguage);
     let results: ISourceTranslatedContent = {
-      google,
-      deepL,
+      source: {
+        google,
+        deepL, 
+        microsoft,
+      },
       targetLanguage,
-    };
+    }; 
 
     // then detect the translation language so that it can be used when reverse translating;
     let detectLanguage = await GoogleDetectLanguage(content);
@@ -81,12 +87,15 @@ export class TranslateManager {
     // reverse translate the existing translation by interchanging their sources i.e 1 <- 2 and 2 <- 1
     let reverseTranslations = await this.reverseTranslate(detectLanguage, results);
 
-    let bestTranslation = await this.compareResults(content, reverseTranslations?.google, reverseTranslations?.deepL);
+    let bestTranslation = await this.compareResults(content, reverseTranslations?.source.google, reverseTranslations?.source.deepL, reverseTranslations?.source.microsoft);
     if (bestTranslation === "google") {
-      return results.google;
+      return results.source.google;
     }
-    if (bestTranslation === "deepl") {
-      return results.deepL;
+    if (bestTranslation === "deepL") {
+      return results.source.deepL;
+    }
+    if (bestTranslation === "microsoft") {
+      return results.source.microsoft;
     }
   }
 
@@ -97,41 +106,57 @@ export class TranslateManager {
     }
 
     let reversedValues: ISourceTranslatedContent = {
-      google: "",
-      deepL: "",
+      source: {
+        google: "",
+        deepL: "",
+        microsoft: ""
+      },
       targetLanguage: detectLanguageResult.language
     };
 
     let _deepLTargetLanguage: TargetLanguageCode = detectLanguageResult.language as any;
     if (detectLanguageResult.language === "en") {
       _deepLTargetLanguage = "en-GB";
-    }
-
-    reversedValues.deepL = await deepLTranslate(sources.deepL, _deepLTargetLanguage);
-    reversedValues.google = await GoogleTranslate(sources.google, detectLanguageResult.language);
-
+    } 
+    reversedValues.source.deepL = await deepLTranslate(sources.source.deepL, _deepLTargetLanguage);
+    reversedValues.source.google = await GoogleTranslate(sources.source.google, detectLanguageResult.language);
+    reversedValues.source.microsoft = await microsoftTranslate(sources.source.microsoft, detectLanguageResult.language);
+ 
     return reversedValues;
   }
 
 
-  private async compareResults(originalText: string, googleReversed: string | undefined, deeplReversed: string | undefined) {
-    if (!deeplReversed || !googleReversed) { return; }
+  private async compareResults(originalText: string, googleReversed: string | undefined, deeplReversed: string | undefined, microsoftReversed: string | undefined) {
+    if (!deeplReversed || !googleReversed || !microsoftReversed) { return; }
     // score each text and get the closest 
     let googleScore: ICorticalCompareMetric = await scoreTranslation(originalText, googleReversed);
     let deepLScore: ICorticalCompareMetric = await scoreTranslation(originalText, deeplReversed);
+    let microsoftScore: ICorticalCompareMetric = await scoreTranslation(originalText, microsoftReversed);
 
-    let gPoints = 0, dPoints = 0;
 
-    // use 3 item to test for similarity between the text
-    (googleScore.cosineSimilarity > deepLScore.cosineSimilarity) ? gPoints++ : dPoints++;
-    (googleScore.euclideanDistance < deepLScore.euclideanDistance) ? gPoints++ : dPoints++;
-    (googleScore.weightedScoring > deepLScore.weightedScoring) ? gPoints++ : dPoints++;
-  
-    if (gPoints > dPoints) {
+    let items = [{ source: "google", ...googleScore }, { source: "deepL", ...deepLScore }, { source: "microsoft", ...microsoftScore }];
+    const sortedItems = items.sort((itemA, itemB) => {
+      const point1 = itemA.cosineSimilarity > itemB.cosineSimilarity ? 1 : -1;
+      const point2 = itemA.euclideanDistance > itemB.euclideanDistance ? 1 : -1;
+      const point3 = itemA.weightedScoring > itemB.weightedScoring ? 1 : -1;
+
+      return (point1 + point2 + point3);
+    });
+ 
+
+    let winner = sortedItems[0];
+    if (winner.source === "google") {
       return "google";
-    } else {
-      return "deepl";
     }
+    if (winner.source === "deepL") {
+      return "deepL";
+    }
+    if (winner.source === "microsoft") {
+      return "microsoft";
+    }
+
+
+
   };
 
   // end region
@@ -149,11 +174,15 @@ export class TranslateManager {
   }
 
 
-  public async translate(content: string): Promise<string | undefined | null> { 
-    let source = this.translationSource.source; 
+  public async translate(content: string): Promise<string | undefined | null> {
+    let source = this.translationSource.source;
     if (source === "google") {
       // return "google:" + this.targetLanguage;
       return await GoogleTranslate(content, this.targetLanguage);
+    }
+    if (source === "microsoft") {
+      // return "google:" + this.targetLanguage;
+      return await microsoftTranslate(content, this.targetLanguage);
     }
     if (source === "deepL" && this.isOverlap) {
       // return "deepL:" + this.targetLanguage;
@@ -170,9 +199,9 @@ export class TranslateManager {
 
   public setTargetLanguage(target: string) {
     this.targetLanguage = target;
-    // if the target langauge selected is not overlapping
-    if(target === "combined" && this.isOverlap === false){ 
-      this.translationSource.source = "google"; 
+    // if the target language selected is not overlapping
+    if (target === "combined" && this.isOverlap === false) {
+      this.translationSource.source = "google";
     }
     // do not force user to use combined mode
     // when the target language is changed. after initialization of the class in the beginning
@@ -192,13 +221,13 @@ export class TranslateManager {
   }
 
   public setTranslationSource(
-    source: "combined" | "deepL" | "google",
+    source: "combined" | "deepL" | "google" | "microsoft",
     url: string = ""
   ) {
     this.translationSource = {
       source: source,
       url: url,
-    }; 
+    };
   }
 
   public getTranslationSource() {

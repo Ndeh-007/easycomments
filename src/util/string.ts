@@ -1,9 +1,9 @@
 export function isUpperCase(ch: string) {
-    return ch >= 'A' && ch <= 'Z'
+    return ch >= 'A' && ch <= 'Z';
 }
 
 export function isLowerCase(ch: string) {
-    return ch >= 'a' && ch <= 'z'
+    return ch >= 'a' && ch <= 'z';
 }
 
 export function hasEndMark(ch: string) {
@@ -14,7 +14,7 @@ export function hasEndMark(ch: string) {
 
 export function hasCode(text:string,symbols:string) {
     for(let symbol of symbols) {
-        if(text.indexOf(symbol)>=0) return true;
+        if(text.indexOf(symbol)>=0) {return true;};
     }
     return false;
 }

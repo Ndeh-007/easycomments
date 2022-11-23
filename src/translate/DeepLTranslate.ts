@@ -7,8 +7,7 @@ const translator = new deepl.Translator(authKey);
 async function translate(text: string, target: deepl.TargetLanguageCode, source: SourceLanguageCode | null = null) {
     try {
         //  escape the "//" characters so that the translator does not see it as you are omitting the text. I do not know why this is happening. but it works
-        text = text.replace(/(\/\/)/gim, "\\/\\/");
-        console.log(text, target);
+        text = text.replace(/(\/\/)/gim, "\\/\\/"); 
         const result: deepl.TextResult = await translator.translateText(text, source, target);
 
         // restructure the results to show as proper text in the vs code hover tooltip
