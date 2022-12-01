@@ -1,7 +1,7 @@
 import { Range } from "vscode";
 import { CommentItem, CommentTag, } from "../interfaces/interfaces";
 
-// Filters and groups the ranges in the array returning a and array of grouped ranges
+// Filters and groups the ranges in the array returning an array of grouped ranges
 export function filterComments(comment: CommentTag, commentType: string) {
 
     let _comment: CommentItem;
