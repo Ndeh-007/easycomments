@@ -1,7 +1,7 @@
 import { CancellationToken, comments, Hover, MarkdownString, Position, Range, TextDocument, TextLine, env } from 'vscode'; 
 import { selectionContains } from '../functions/highlightFunctions';
 import { CommentItem, IAcceptedLines, IGetRange, ITranslationStorageItem, TranslationBlock } from '../interfaces/interfaces';
-import { Parser } from '../interfaces/Parser';
+import { Parser } from '../util/Parser';
 import { TranslateManager } from '../translate/translateManager';
 import { isCode } from '../util/string';
 import { LocalStorageService } from './storage';
@@ -15,6 +15,9 @@ export async function tooltip(document: TextDocument, position: Position, token:
     const space = '&nbsp;&nbsp;';
     const separator = `${space}|${space}`;
     const header: MarkdownString = new MarkdownString(`${pluginTitle}${space}${separator}${targetLang}${separator}${translationSource}`, true); 
+    const uri = document.uri.toString();
+    console.log(uri);
+
 
     header.isTrusted = true;
     let hoverLine = document.lineAt(position.line);
@@ -67,9 +70,10 @@ export async function tooltip(document: TextDocument, position: Position, token:
 
     let translationResult:any = hoveredText;
     // do not translate if the target language and the system language are the same to save api calls
-    console.log(env.language);
+    console.log(env.language,targetLang);
     if(targetLang !== env.language){ 
         translationResult = await translateManager.translate(hoveredText);
+        console.log("translation called");
     }
 
     const translationBlock: TranslationBlock = {

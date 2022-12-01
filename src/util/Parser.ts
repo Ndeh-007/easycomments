@@ -14,7 +14,7 @@ import {
   CommentTag,
   Contributions,
   StorageItem,
-} from "./interfaces";
+} from "../interfaces/interfaces";
 
 export class Parser {
   private tags: CommentTag[] = [];

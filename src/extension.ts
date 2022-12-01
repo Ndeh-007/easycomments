@@ -4,10 +4,8 @@ import { commands, window, env, ExtensionContext, TextEditor, extensions, worksp
 import { registerHover } from './actions/hover';
 import { registerCommands } from './commands/commands';
 import { LocalStorageService } from './components/storage';
-import { Configuration } from './configuration/configuration';
-import { canTranslateLanguage, filterLanguages } from './functions/filterLanguages';
-import { registerHighlight } from './functions/highlightFunctions';
-import { Parser } from './interfaces/Parser'; 
+import { Configuration } from './configuration/configuration'; 
+import { Parser } from './util/Parser'; 
 import { TranslateManager } from './translate/translateManager';
 
 export let canLanguages = ["plaintext"];
@@ -67,6 +65,7 @@ export async function activate(context: ExtensionContext) {
 
 		registerCommands(context, translateManager);
   
+		console.log("extension launched.");
 
 		window.showInformationMessage("EasyComments extension launched");
 	}

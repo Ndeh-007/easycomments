@@ -12,6 +12,8 @@
         "deepl",
         "easycomments",
         "grammarly",
-        "jaccard"
+        "jaccard",
+        "onigasm",
+        "outfile"
     ]
 }
