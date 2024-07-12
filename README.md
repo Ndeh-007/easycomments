@@ -2,6 +2,7 @@
 
 In a bid to solve the issues the natural language barrier posses to a group of developers, EasyComments translates comments written in one language(e.g chinese) to another language (e.g French) so that people can work together or you can now clone the code of Japanese and understand the developers thought patterns by reading his comments written in Japanese.
 
+URL: [VS Code Extension Marketplace](https://marketplace.visualstudio.com/items?itemName=akumah47.easycomments)
 
 EasyComments uses 3 translation services to provide the best translation for the user.
 * `Google Translate`: Wide range of languages. Uses Neural Machine translation
